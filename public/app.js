@@ -132,8 +132,8 @@ function displayResponse(data, clientTime) {
       ` : ''}
 
       <div class="result-item" style="grid-column: span 2;">
-        <div class="result-label">Assistant Message</div>
-        <div class="result-value message">"${data.assistant_message}"</div>
+        <div class="result-label">${data.needs_clarification ? 'Clarification Message' : 'Assistant Message'}</div>
+        <div class="result-value message" style="color:${data.needs_clarification ? '#ff6b6b' : '#ffcc00'};">"${data.needs_clarification && data.clarification_question ? data.clarification_question : data.assistant_message}"</div>
       </div>
 
       <div class="result-item">
@@ -149,14 +149,9 @@ function displayResponse(data, clientTime) {
         <div class="result-value">${data.needs_clarification ? '⚠️ Yes' : '✅ No'}</div>
       </div>
   `;
-  
+
   if (data.needs_clarification && data.clarification_question) {
     html += `
-      <div class="result-item" style="grid-column: span 2;">
-        <div class="result-label">Clarification Question</div>
-        <div class="result-value" style="color:#ff6b6b;">"${data.clarification_question}"</div>
-      </div>
-    `;
 
     // Show clarification type if available
     if (data.clarification_type) {

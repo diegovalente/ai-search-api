@@ -278,7 +278,7 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
       needs_clarification: true,
       clarification_question: 'I can help you find movies and shows. What would you like to watch?',
       clarification_type: 'off_topic',
-      clarification_options: ['Comedy', 'The Office', 'NBA', 'Sci-Fi'],
+      clarification_options: ['Comedy', 'Drama', 'Action', 'Sci-Fi'],
       confidence: 0,
       intent: 'clarification',
     },
