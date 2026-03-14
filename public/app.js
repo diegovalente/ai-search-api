@@ -86,8 +86,11 @@ async function submitRequest(optionText = null) {
     document.getElementById('conversationIdDisplay').textContent = currentConversationId.substring(0, 8) + '...';
     document.getElementById('conversationIndicator').classList.remove('hidden');
 
-    // Add assistant message to chat history
-    addToChatHistory('assistant', data.assistant_message);
+    // Add assistant message to chat history (use clarification_question if needs clarification)
+    const messageToShow = data.needs_clarification && data.clarification_question
+      ? data.clarification_question
+      : data.assistant_message;
+    addToChatHistory('assistant', messageToShow);
 
     displayResponse(data, endTime - startTime);
   } catch (error) {
