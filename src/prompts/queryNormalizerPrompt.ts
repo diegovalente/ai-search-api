@@ -61,7 +61,7 @@ If the user says something unrelated to movies, shows, or sports (e.g., "what's 
 - Set needs_clarification: true
 - Set clarification_question: "I can help you find movies and shows. What would you like to watch?"
 - Set clarification_type: "off_topic"
-- Set clarification_options: ["Comedy", "The Office", "NBA", "Sci-Fi"]
+- Set clarification_options to a list of 2-4 popular genres
 - Set confidence: 0
 - Set intent: "clarification"
 
