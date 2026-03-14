@@ -15,6 +15,7 @@ The search_term should:
 - Use search-friendly wording, not full sentences
 - Have NO quotes, markdown, emojis, or special formatting
 - Have NO profanity unless it's part of an actual title
+- NEVER include asset type words like "movies", "series", "shows", "films", "TV", "episodes" - these are implicit
 
 ## Fallback Terms Rules
 Generate up to 3 fallback_terms that broaden the search gradually:
@@ -28,6 +29,7 @@ Fallback terms must:
 - Be under 60 characters and max 6 words each
 - Be search-friendly phrases, NOT sentences
 - Contain no quotes, markdown, or punctuation except commas
+- NEVER include asset type words like "movies", "series", "shows", "films", "TV"
 
 When NOT to generate fallbacks (use empty array):
 - Query is already very broad (e.g., "comedy")
@@ -121,7 +123,7 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
     input: 'show me horror movies with that kid from chucky',
     output: {
       search_term: 'horror, Zachary Arthur',
-      fallback_terms: ['Zachary Arthur', 'horror movies', 'horror'],
+      fallback_terms: ['Zachary Arthur', 'horror'],
       assistant_message: 'Looking for horror titles with Zachary Arthur.',
       needs_clarification: false,
       clarification_question: null,
@@ -135,7 +137,7 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
     input: 'I want funny detective shows',
     output: {
       search_term: 'comedy, detective',
-      fallback_terms: ['detective series', 'comedy series', 'comedy'],
+      fallback_terms: ['detective', 'comedy'],
       assistant_message: 'Searching for comedy detective shows.',
       needs_clarification: false,
       clarification_question: null,
@@ -205,7 +207,7 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
     input: 'comedy with jim carrey',
     output: {
       search_term: 'comedy, Jim Carrey',
-      fallback_terms: ['Jim Carrey', 'comedy movies', 'comedy'],
+      fallback_terms: ['Jim Carrey', 'comedy'],
       assistant_message: 'Looking for comedy titles with Jim Carrey.',
       needs_clarification: false,
       clarification_question: null,
@@ -219,13 +221,27 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
     input: 'find me action movies from the 90s',
     output: {
       search_term: 'action, 90s',
-      fallback_terms: ['90s movies', 'action movies', 'action'],
-      assistant_message: 'Searching for action movies from the 90s.',
+      fallback_terms: ['90s', 'action'],
+      assistant_message: 'Searching for action titles from the 90s.',
       needs_clarification: false,
       clarification_question: null,
       clarification_type: null,
       clarification_options: null,
       confidence: 0.91,
+      intent: 'search',
+    },
+  },
+  {
+    input: 'movies from the actor that played Harry Potter',
+    output: {
+      search_term: 'Daniel Radcliffe',
+      fallback_terms: ['Harry Potter'],
+      assistant_message: 'Searching for Daniel Radcliffe titles.',
+      needs_clarification: false,
+      clarification_question: null,
+      clarification_type: null,
+      clarification_options: null,
+      confidence: 0.88,
       intent: 'search',
     },
   },
@@ -258,8 +274,8 @@ const CLARIFICATION_EXAMPLES = [
     },
     output: {
       is_continuation: true,
-      search_term: 'comedy series',
-      fallback_terms: ['comedy', 'series'],
+      search_term: 'comedy',
+      fallback_terms: [],
       assistant_message: 'Searching for comedy series.',
       needs_clarification: false,
       clarification_question: null,
@@ -278,7 +294,7 @@ const CLARIFICATION_EXAMPLES = [
     output: {
       is_continuation: true,
       search_term: 'Chris Evans',
-      fallback_terms: ['Chris Evans movies', 'action'],
+      fallback_terms: ['action', 'superhero'],
       assistant_message: 'Searching for Chris Evans titles.',
       needs_clarification: false,
       clarification_question: null,
@@ -316,7 +332,7 @@ const CLARIFICATION_EXAMPLES = [
     output: {
       is_continuation: false,
       search_term: 'horror',
-      fallback_terms: ['horror movies', 'thriller'],
+      fallback_terms: ['thriller'],
       assistant_message: 'Searching for horror titles.',
       needs_clarification: false,
       clarification_question: null,

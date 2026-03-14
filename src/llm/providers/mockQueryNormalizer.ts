@@ -16,7 +16,7 @@ export class MockQueryNormalizer implements QueryNormalizerModel {
     if (request.includes('jim carrey') && request.includes('comedy')) {
       return {
         search_term: 'comedy, Jim Carrey',
-        fallback_terms: ['Jim Carrey', 'comedy movies', 'comedy'],
+        fallback_terms: ['Jim Carrey', 'comedy'],
         assistant_message: 'Looking for comedy titles with Jim Carrey.',
         needs_clarification: false,
         clarification_question: null,
@@ -30,7 +30,7 @@ export class MockQueryNormalizer implements QueryNormalizerModel {
     if (request.includes('horror') && (request.includes('zachary') || request.includes('chucky'))) {
       return {
         search_term: 'horror, Zachary Arthur',
-        fallback_terms: ['Zachary Arthur', 'horror movies', 'horror'],
+        fallback_terms: ['Zachary Arthur', 'horror'],
         assistant_message: 'Looking for horror titles with Zachary Arthur.',
         needs_clarification: false,
         clarification_question: null,
@@ -100,7 +100,7 @@ export class MockQueryNormalizer implements QueryNormalizerModel {
     if (request.includes('detective') && (request.includes('funny') || request.includes('comedy'))) {
       return {
         search_term: 'comedy, detective',
-        fallback_terms: ['detective series', 'comedy series', 'comedy'],
+        fallback_terms: ['detective', 'comedy'],
         assistant_message: 'Searching for comedy detective shows.',
         needs_clarification: false,
         clarification_question: null,
@@ -113,9 +113,9 @@ export class MockQueryNormalizer implements QueryNormalizerModel {
 
     if (request.includes('kids') && request.includes('animal')) {
       return {
-        search_term: 'kids animation, animals',
-        fallback_terms: ['kids animation', 'animated movies', 'family'],
-        assistant_message: 'Looking for kids animated titles with animals.',
+        search_term: 'animation, animals',
+        fallback_terms: ['animation', 'family'],
+        assistant_message: 'Looking for animated titles with animals.',
         needs_clarification: false,
         clarification_question: null,
         clarification_type: null,
@@ -128,8 +128,8 @@ export class MockQueryNormalizer implements QueryNormalizerModel {
     if (request.includes('action') && request.includes('90s')) {
       return {
         search_term: 'action, 90s',
-        fallback_terms: ['90s movies', 'action movies', 'action'],
-        assistant_message: 'Searching for action movies from the 90s.',
+        fallback_terms: ['90s', 'action'],
+        assistant_message: 'Searching for action titles from the 90s.',
         needs_clarification: false,
         clarification_question: null,
         clarification_type: null,
