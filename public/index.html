@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peacock Search Normalizer - Test UI</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+      padding: 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { text-align: center; margin-bottom: 10px; color: #00d9ff; }
+    .subtitle { text-align: center; color: #888; margin-bottom: 30px; }
+    .card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .input-group { margin-bottom: 16px; }
+    label { display: block; margin-bottom: 8px; color: #aaa; font-size: 14px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.3);
+      color: #fff;
+      font-size: 16px;
+    }
+    input:focus, textarea:focus { outline: none; border-color: #00d9ff; }
+    .row { display: flex; gap: 16px; }
+    .row > * { flex: 1; }
+    button {
+      background: linear-gradient(135deg, #00d9ff 0%, #0099cc 100%);
+      color: #000;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,217,255,0.3); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .response-card { background: rgba(0,217,255,0.05); }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .result-item { background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px; }
+    .result-label { color: #888; font-size: 12px; text-transform: uppercase; margin-bottom: 4px; }
+    .result-value { font-size: 18px; word-break: break-word; }
+    .result-value.search-term { color: #00ff88; font-family: monospace; }
+    .result-value.message { color: #ffcc00; }
+    .confidence-bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; margin-top: 8px; overflow: hidden; }
+    .confidence-fill { height: 100%; background: linear-gradient(90deg, #ff4444 0%, #ffcc00 50%, #00ff88 100%); transition: width 0.3s; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge.valid { background: #00ff88; color: #000; }
+    .badge.fallback { background: #ffcc00; color: #000; }
+    .badge.search { background: #00d9ff; color: #000; }
+    .badge.clarification { background: #ff6b6b; color: #fff; }
+    .debug-section { margin-top: 20px; }
+    .debug-toggle { background: transparent; color: #888; border: 1px solid #444; padding: 8px 16px; width: auto; }
+    .debug-toggle:hover { background: rgba(255,255,255,0.05); transform: none; box-shadow: none; }
+    pre { background: #000; padding: 16px; border-radius: 8px; overflow-x: auto; font-size: 13px; color: #0f0; }
+    .examples { margin-top: 20px; }
+    .example-btn { background: rgba(255,255,255,0.1); color: #fff; padding: 8px 16px; margin: 4px; width: auto; display: inline-block; font-size: 14px; }
+    .example-btn:hover { background: rgba(255,255,255,0.2); }
+    .loading { display: none; text-align: center; padding: 40px; }
+    .loading.show { display: block; }
+    .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,217,255,0.3); border-top-color: #00d9ff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error { background: rgba(255,68,68,0.2); border: 1px solid #ff4444; padding: 16px; border-radius: 8px; color: #ff6b6b; }
+    .hidden { display: none; }
+    .clarification-options { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .clarification-btn { background: linear-gradient(135deg, #ff6b6b 0%, #cc4444 100%); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 14px; width: auto; }
+    .clarification-btn:hover { background: linear-gradient(135deg, #ff8888 0%, #dd5555 100%); }
+    .conversation-indicator { background: rgba(0,217,255,0.1); border: 1px solid rgba(0,217,255,0.3); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+    .conversation-id { font-family: monospace; font-size: 12px; color: #00d9ff; }
+    .clear-conversation { background: transparent; color: #ff6b6b; border: 1px solid #ff6b6b; padding: 6px 12px; width: auto; font-size: 12px; }
+    .clear-conversation:hover { background: rgba(255,107,107,0.1); transform: none; box-shadow: none; }
+    .chat-history { max-height: 300px; overflow-y: auto; margin-bottom: 16px; }
+    .chat-message { padding: 12px; border-radius: 8px; margin-bottom: 8px; }
+    .chat-message.user { background: rgba(0,217,255,0.1); margin-left: 40px; }
+    .chat-message.assistant { background: rgba(255,204,0,0.1); margin-right: 40px; }
+    .chat-role { font-size: 11px; color: #888; margin-bottom: 4px; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🦚 Peacock Search Normalizer</h1>
+    <p class="subtitle">Transform natural language into optimized search queries</p>
+
+    <div class="card">
+      <div id="conversationIndicator" class="conversation-indicator hidden">
+        <div>
+          <span style="color:#888;font-size:12px;">Conversation:</span>
+          <span class="conversation-id" id="conversationIdDisplay"></span>
+        </div>
+        <button class="clear-conversation" onclick="clearConversation()">✕ New Conversation</button>
+      </div>
+
+      <div id="chatHistory" class="chat-history hidden"></div>
+
+      <div class="input-group">
+        <label for="userRequest">What do you want to watch?</label>
+        <textarea id="userRequest" rows="2" placeholder="e.g., Show me funny detective shows with Jim Carrey"></textarea>
+      </div>
+      <div class="row">
+        <div class="input-group">
+          <label for="locale">Locale</label>
+          <select id="locale">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Spanish</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="platform">Platform</label>
+          <select id="platform">
+            <option value="web">Web</option>
+            <option value="ios">iOS</option>
+            <option value="android">Android</option>
+            <option value="tv">TV</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label><input type="checkbox" id="debug" checked> Include debug info</label>
+      </div>
+      <button id="submitBtn" onclick="submitRequest()">🔍 Normalize Search</button>
+      <div class="examples">
+        <span style="color:#888;font-size:12px;">Try:</span>
+        <button class="example-btn" onclick="setExample('Show me funny detective shows')">Funny detective shows</button>
+        <button class="example-btn" onclick="setExample('comedy with jim carrey')">Comedy + Jim Carrey</button>
+        <button class="example-btn" onclick="setExample('Show me movies with Chris')">Ambiguous actor (Chris)</button>
+        <button class="example-btn" onclick="setExample('that actor from white lotus')">Ambiguous request</button>
+        <button class="example-btn" onclick="setExample('kids animated movies with animals')">Kids animation</button>
+      </div>
+    </div>
+
+    <div class="loading" id="loading"><div class="spinner"></div><p>Processing with Qwen2.5...</p></div>
+    <div class="card response-card hidden" id="responseCard"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+

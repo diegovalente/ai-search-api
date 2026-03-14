@@ -1,0 +1,38 @@
+{
+  "name": "ai-search-api",
+  "version": "1.0.0",
+  "description": "Peacock Voice/Text Search Normalizer API - transforms natural language into optimized search terms",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "search",
+    "normalization",
+    "llm",
+    "peacock"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/static": "^9.0.0",
+    "fastify": "^5.8.2",
+    "openai": "^4.56.0",
+    "pino": "^9.3.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.12",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

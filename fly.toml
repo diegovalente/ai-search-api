@@ -1,0 +1,37 @@
+# Fly.io configuration
+# Deploy with: fly launch --copy-config --no-deploy && fly secrets set GROQ_API_KEY=your_key && fly deploy
+
+app = "ai-search-api"
+primary_region = "sjc"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  LLM_PROVIDER = "groq"
+  GROQ_MODEL = "llama-3.3-70b-versatile"
+  LLM_TIMEOUT_MS = "30000"
+  LOG_LEVEL = "info"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/health"
+
+[[vm]]
+  memory = "256mb"
+  cpu_kind = "shared"
+  cpus = 1
+
