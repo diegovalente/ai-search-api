@@ -150,32 +150,28 @@ function displayResponse(data, clientTime) {
       </div>
   `;
 
-  if (data.needs_clarification && data.clarification_question) {
+  // Show clarification type if available
+  if (data.needs_clarification && data.clarification_type) {
     html += `
+      <div class="result-item">
+        <div class="result-label">Clarification Type</div>
+        <div class="result-value">${data.clarification_type}</div>
+      </div>
+    `;
+  }
 
-    // Show clarification type if available
-    if (data.clarification_type) {
-      html += `
-        <div class="result-item">
-          <div class="result-label">Clarification Type</div>
-          <div class="result-value">${data.clarification_type}</div>
+  // Show clarification options as buttons
+  if (data.needs_clarification && data.clarification_options && data.clarification_options.length > 0) {
+    html += `
+      <div class="result-item" style="grid-column: span 2;">
+        <div class="result-label">Quick Reply Options</div>
+        <div class="clarification-options">
+          ${data.clarification_options.map(opt =>
+            `<button class="clarification-btn" onclick="submitRequest('${opt.replace(/'/g, "\\'")}')">${opt}</button>`
+          ).join('')}
         </div>
-      `;
-    }
-
-    // Show clarification options as buttons
-    if (data.clarification_options && data.clarification_options.length > 0) {
-      html += `
-        <div class="result-item" style="grid-column: span 2;">
-          <div class="result-label">Quick Reply Options</div>
-          <div class="clarification-options">
-            ${data.clarification_options.map(opt =>
-              `<button class="clarification-btn" onclick="submitRequest('${opt.replace(/'/g, "\\'")}')">${opt}</button>`
-            ).join('')}
-          </div>
-        </div>
-      `;
-    }
+      </div>
+    `;
   }
 
   html += '</div>';
