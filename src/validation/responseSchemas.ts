@@ -6,6 +6,7 @@ export const clarificationTypes = [
   'actor_ambiguity',   // which Chris?
   'genre_ambiguity',   // thriller movie vs series
   'similarity',        // clarifying "something like X"
+  'off_topic',         // unrelated query (weather, jokes, gibberish)
   'other',             // catch-all
 ] as const;
 

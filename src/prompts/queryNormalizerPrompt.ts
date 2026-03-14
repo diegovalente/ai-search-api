@@ -52,8 +52,18 @@ Set needs_clarification=true ONLY when the request is too ambiguous to search.
 Prefer NOT asking clarification if a reasonable search term can be produced.
 
 When asking for clarification, you MUST also provide:
-- clarification_type: one of "content_type", "actor_ambiguity", "genre_ambiguity", "similarity", "other"
+- clarification_type: one of "content_type", "actor_ambiguity", "genre_ambiguity", "similarity", "off_topic", "other"
 - clarification_options: array of 2-4 short options the user can choose from
+
+## Off-Topic and Invalid Queries
+If the user says something unrelated to movies, shows, or sports (e.g., "what's the weather", "tell me a joke", "hello"), OR if the input is gibberish/unintelligible:
+- Set search_term: null
+- Set needs_clarification: true
+- Set clarification_question: "I can help you find movies and shows. What would you like to watch?"
+- Set clarification_type: "off_topic"
+- Set clarification_options: ["Comedy", "The Office", "NBA", "Sci-Fi"]
+- Set confidence: 0
+- Set intent: "clarification"
 
 ## Response Format
 You MUST respond with ONLY a JSON object, no other text:
@@ -245,6 +255,34 @@ export const FEW_SHOT_EXAMPLES: FewShotExample[] = [
       intent: 'search',
     },
   },
+  {
+    input: "what's the weather today",
+    output: {
+      search_term: null,
+      fallback_terms: [],
+      assistant_message: 'I can help you find movies and shows.',
+      needs_clarification: true,
+      clarification_question: 'I can help you find movies and shows. What would you like to watch?',
+      clarification_type: 'off_topic',
+      clarification_options: ['Comedy', 'The Office', 'NBA', 'Sci-Fi'],
+      confidence: 0,
+      intent: 'clarification',
+    },
+  },
+  {
+    input: 'asdfghjkl',
+    output: {
+      search_term: null,
+      fallback_terms: [],
+      assistant_message: 'I can help you find movies and shows.',
+      needs_clarification: true,
+      clarification_question: 'I can help you find movies and shows. What would you like to watch?',
+      clarification_type: 'off_topic',
+      clarification_options: ['Comedy', 'The Office', 'NBA', 'Sci-Fi'],
+      confidence: 0,
+      intent: 'clarification',
+    },
+  },
 ];
 
 export function buildPromptMessages(userRequest: string): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
@@ -268,25 +306,6 @@ export function buildPromptMessages(userRequest: string): Array<{ role: 'system'
 const CLARIFICATION_EXAMPLES = [
   {
     context: {
-      previous_request: 'Show me comedy',
-      clarification_question: 'Do you want a comedy movie or a comedy series?',
-      user_reply: 'series',
-    },
-    output: {
-      is_continuation: true,
-      search_term: 'comedy',
-      fallback_terms: [],
-      assistant_message: 'Searching for comedy series.',
-      needs_clarification: false,
-      clarification_question: null,
-      clarification_type: null,
-      clarification_options: null,
-      confidence: 0.92,
-      intent: 'search',
-    },
-  },
-  {
-    context: {
       previous_request: 'Show me movies with Chris',
       clarification_question: 'Do you mean Chris Pratt, Chris Evans, or Chris Hemsworth?',
       user_reply: 'Chris Evans',
@@ -306,8 +325,8 @@ const CLARIFICATION_EXAMPLES = [
   },
   {
     context: {
-      previous_request: 'Show me comedy',
-      clarification_question: 'Do you want a comedy movie or a comedy series?',
+      previous_request: 'Show me movies with Chris',
+      clarification_question: 'Do you mean Chris Pratt, Chris Evans, or Chris Hemsworth?',
       user_reply: 'What is the weather today?',
     },
     output: {

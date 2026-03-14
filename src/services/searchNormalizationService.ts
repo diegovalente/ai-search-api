@@ -8,6 +8,7 @@ import {
   validateFallbackTerms,
   getRandomFallbackMessage,
 } from '../validation/outputGuards.js';
+import { validateInput, DEFAULT_CLARIFICATION_OPTIONS } from '../validation/inputGuards.js';
 import { sanitizeSearchTerm, sanitizeAssistantMessage } from '../utils/sanitize.js';
 import { Timer } from '../utils/timing.js';
 import { createRequestLogger } from '../utils/logger.js';
@@ -42,6 +43,40 @@ export class SearchNormalizationService {
 
     // Check for existing conversation with pending clarification
     const existingConversation = conversationStore.get(conversationId);
+
+    // Pre-LLM validation for gibberish/off-topic (skip if answering clarification)
+    if (!existingConversation?.clarification_pending) {
+      const inputValidation = validateInput(request.user_request);
+      if (!inputValidation.isValid) {
+        log.info({ reason: inputValidation.reason }, 'Input rejected by pre-validation');
+        timer.mark('validation');
+
+        const offTopicResponse: SearchNormalizationResponse = {
+          conversation_id: conversationId,
+          search_term: null,
+          fallback_terms: [],
+          assistant_message: 'I can help you find movies and shows.',
+          needs_clarification: true,
+          clarification_question: 'I can help you find movies and shows. What would you like to watch?',
+          clarification_type: 'off_topic',
+          clarification_options: DEFAULT_CLARIFICATION_OPTIONS,
+          confidence: 0,
+          intent: 'clarification',
+          validation_status: 'valid',
+        };
+
+        if (request.debug) {
+          offTopicResponse.debug = {
+            validation_errors: [`Input rejected: ${inputValidation.reason}`],
+            fallback_applied: false,
+            timings_ms: timer.getTimings(),
+          };
+        }
+
+        this.updateConversationState(conversationId, request.user_request, offTopicResponse);
+        return { response: offTopicResponse, timings: timer.getTimings() };
+      }
+    }
 
     try {
       let llmOutput: QueryNormalizerModelOutput;
