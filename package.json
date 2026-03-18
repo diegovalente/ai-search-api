@@ -1,7 +1,7 @@
 {
   "name": "ai-search-api",
   "version": "1.0.0",
-  "description": "Peacock Voice/Text Search Normalizer API - transforms natural language into optimized search terms",
+  "description": "AI Search Normalizer API - transforms natural language into optimized search terms",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "search",
     "normalization",
     "llm",
-    "peacock"
+    "ai"
   ],
   "author": "",
   "license": "ISC",
