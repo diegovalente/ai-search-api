@@ -2,6 +2,23 @@
 let currentConversationId = null;
 let chatHistory = [];
 
+function createRequestId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  if (globalThis.crypto?.getRandomValues) {
+    const bytes = new Uint8Array(16);
+    globalThis.crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0'));
+    return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10, 16).join('')}`;
+  }
+
+  return `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 function setExample(text) {
   document.getElementById('userRequest').value = text;
 }
@@ -60,7 +77,7 @@ async function submitRequest(optionText = null) {
       locale,
       platform,
       debug,
-      request_id: crypto.randomUUID()
+      request_id: createRequestId()
     };
 
     // Include conversation_id if we have one
