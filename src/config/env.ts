@@ -1,3 +1,5 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { z } from 'zod';
 
 // Supported LLM providers
@@ -35,8 +37,78 @@ const envSchema = z.object({
 });
 
 export type EnvConfig = z.infer<typeof envSchema>;
+export type EnvKey = keyof z.input<typeof envSchema>;
+export type EnvValueSource = 'process.env' | '.env' | 'default';
 
-function loadEnv(): EnvConfig {
+const ENV_KEYS = Object.keys(envSchema.shape) as EnvKey[];
+
+function loadDotEnvFile(filePath = '.env'): Set<string> {
+  const resolvedPath = resolve(process.cwd(), filePath);
+  const loadedKeys = new Set<string>();
+
+  if (!existsSync(resolvedPath)) {
+    return loadedKeys;
+  }
+
+  const fileContents = readFileSync(resolvedPath, 'utf8');
+
+  for (const rawLine of fileContents.split(/\r?\n/)) {
+    const line = rawLine.trim();
+
+    if (!line || line.startsWith('#')) {
+      continue;
+    }
+
+    const normalizedLine = line.startsWith('export ') ? line.slice(7).trim() : line;
+    const separatorIndex = normalizedLine.indexOf('=');
+
+    if (separatorIndex <= 0) {
+      continue;
+    }
+
+    const key = normalizedLine.slice(0, separatorIndex).trim();
+    if (!key || process.env[key] !== undefined) {
+      continue;
+    }
+
+    let value = normalizedLine.slice(separatorIndex + 1).trim();
+
+    const isQuoted =
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"));
+
+    if (isQuoted) {
+      value = value.slice(1, -1);
+    } else {
+      const inlineCommentIndex = value.search(/\s#/);
+      if (inlineCommentIndex !== -1) {
+        value = value.slice(0, inlineCommentIndex).trim();
+      }
+    }
+
+    process.env[key] = value;
+    loadedKeys.add(key);
+  }
+
+  return loadedKeys;
+}
+
+function getEnvSource(key: string, originalEnvKeys: Set<string>, dotEnvKeys: Set<string>): EnvValueSource {
+  if (originalEnvKeys.has(key)) {
+    return 'process.env';
+  }
+
+  if (dotEnvKeys.has(key)) {
+    return '.env';
+  }
+
+  return 'default';
+}
+
+function loadEnv(): { config: EnvConfig; sources: Record<EnvKey, EnvValueSource> } {
+  const originalEnvKeys = new Set(Object.keys(process.env).filter((key) => process.env[key] !== undefined));
+  const dotEnvKeys = loadDotEnvFile();
+
   const result = envSchema.safeParse(process.env);
   
   if (!result.success) {
@@ -45,8 +117,18 @@ function loadEnv(): EnvConfig {
     process.exit(1);
   }
   
-  return result.data;
+  const sources = Object.fromEntries(
+    ENV_KEYS.map((key) => [key, getEnvSource(key, originalEnvKeys, dotEnvKeys)])
+  ) as Record<EnvKey, EnvValueSource>;
+
+  return {
+    config: result.data,
+    sources,
+  };
 }
 
-export const config = loadEnv();
+const loadedEnv = loadEnv();
+
+export const config = loadedEnv.config;
+export const envSources = loadedEnv.sources;
 

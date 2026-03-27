@@ -1,9 +1,22 @@
 import { buildApp } from './app.js';
-import { config } from './config/env.js';
+import { config, envSources } from './config/env.js';
 import { logger } from './utils/logger.js';
 
 async function main() {
   try {
+    logger.info({
+      port: config.PORT,
+      port_source: envSources.PORT,
+      env: config.NODE_ENV,
+      env_source: envSources.NODE_ENV,
+      llm_provider: config.LLM_PROVIDER,
+      llm_provider_source: envSources.LLM_PROVIDER,
+      llm_base_url: config.LOCAL_LLM_BASE_URL,
+      llm_base_url_source: envSources.LOCAL_LLM_BASE_URL,
+      llm_model: config.LOCAL_LLM_MODEL,
+      llm_model_source: envSources.LOCAL_LLM_MODEL,
+    }, 'Resolved startup configuration');
+
     const app = await buildApp();
 
     await app.listen({

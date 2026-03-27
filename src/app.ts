@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { config } from './config/env.js';
+import { config, envSources } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { registerSearchNormalizationRoutes } from './routes/searchNormalization.js';
 import type { QueryNormalizerModel } from './llm/QueryNormalizerModel.js';
@@ -84,14 +84,21 @@ export async function buildApp(options: AppOptions = {}): Promise<FastifyInstanc
         logger.error('GROQ_API_KEY is required when using Groq provider');
         throw new Error('GROQ_API_KEY is required');
       }
-      logger.info({ model: config.GROQ_MODEL }, 'Using Groq LLM provider');
+      logger.info({
+        provider_source: envSources.LLM_PROVIDER,
+        model: config.GROQ_MODEL,
+        model_source: envSources.GROQ_MODEL,
+      }, 'Using Groq LLM provider');
       model = new GroqQueryNormalizer();
       break;
 
     case 'local':
       logger.info({
         base_url: config.LOCAL_LLM_BASE_URL,
-        model: config.LOCAL_LLM_MODEL
+        base_url_source: envSources.LOCAL_LLM_BASE_URL,
+        model: config.LOCAL_LLM_MODEL,
+        model_source: envSources.LOCAL_LLM_MODEL,
+        provider_source: envSources.LLM_PROVIDER,
       }, 'Using local LLM provider (Ollama/vLLM)');
       model = new LocalQueryNormalizer();
       break;
