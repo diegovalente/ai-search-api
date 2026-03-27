@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { logger } from '../utils/logger.js';
 
 export interface ConversationState {
@@ -29,7 +30,7 @@ class ConversationStore {
    * Generate a new conversation ID.
    */
   generateId(): string {
-    return crypto.randomUUID();
+    return randomUUID();
   }
 
   /**

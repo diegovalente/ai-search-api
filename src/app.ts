@@ -1,6 +1,7 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
+import { randomUUID } from 'node:crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config, envSources } from './config/env.js';
@@ -22,7 +23,7 @@ export async function buildApp(options: AppOptions = {}): Promise<FastifyInstanc
   const app = Fastify({
     logger: false, // We use our own logger
     requestIdHeader: 'x-request-id',
-    genReqId: () => crypto.randomUUID(),
+    genReqId: () => randomUUID(),
   });
 
   // Register CORS
